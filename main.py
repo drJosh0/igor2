@@ -9,4 +9,6 @@ https://www.sec.gov/dera/data/financial-statement-data-sets.html
 #change
 #todo - all the things
 
-
+with open('2020Q4/pre.txt', 'r') as file:
+    for line in file:
+        print(line)
