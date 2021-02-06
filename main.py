@@ -7,5 +7,6 @@ https://www.sec.gov/dera/data/financial-statement-data-sets.html
 '''
 
 #change
+#todo - all the things
 
 
