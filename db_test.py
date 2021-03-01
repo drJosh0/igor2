@@ -3,8 +3,25 @@ import mysql.connector
 import matplotlib.pyplot as plt
 
 from datetime import datetime
+##########################################################################
+##########################################################################
 
+def GetAllVars(table, adsh):
+	Vars = set()
 
+	cursor = db.cursor()
+	SQL_COMMAND = "SELECT tag FROM {} WHERE adsh='{}';".format(table, adsh)
+	cursor.execute(SQL_COMMAND)
+	results = cursor.fetchall()
+	for r in results:
+		#print(str(r[0]))
+		Vars.add(r[0])
+
+	#print(Vars)
+	return Vars
+
+##########################################################################
+##########################################################################
 try:
 	db = mysql.connector.connect(
 	host='localhost',
@@ -77,7 +94,7 @@ if input('Select from database? (y/n): ') == 'y':
 	mycursor = db.cursor()
 	database = 'EDGAR'
 
-	COMPANY_SEARCH_TERM = 'FACEBOOK'
+	COMPANY_SEARCH_TERM = 'VIRGIN GALACTIC'
 	#COMPANY_SEARCH_TERM = 'TESLA'
 	SQL_COMMAND = "SELECT adsh,company_name,form,filed FROM EDGAR.Submissions WHERE company_name regexp '^{}*';".format(COMPANY_SEARCH_TERM)
 	mycursor.execute(SQL_COMMAND)
@@ -86,15 +103,17 @@ if input('Select from database? (y/n): ') == 'y':
 	assets, assets_current, other_assets_noncurrent = [], [], []
 	for r in records:
 
-		print(r)
+		#print(r)
 		SQL_COMMAND2 = "SELECT adsh, tag, ddate, qtrs, cValue, date_modified FROM EDGAR.Numbers WHERE adsh='{}';".format(r[0])
 		mycursor.execute(SQL_COMMAND2)
 		records2 = mycursor.fetchall()
-		print('First Level Finished...')
+		#print('First Level Finished...')
 
+		Z = GetAllVars('EDGAR.Numbers', r[0])
+		print(Z)
 
 		for r2 in records2:
-			print('Entering Second Level...')
+			#print('Entering Second Level...')
 
 			if r2[1] == 'Assets':
 				assets.append((r2[2], r2[4]))
@@ -102,18 +121,22 @@ if input('Select from database? (y/n): ') == 'y':
 				assets_current.append((r2[2], r2[4]))
 			elif r2[1] == 'OtherAssetsNoncurrent':
 				other_assets_noncurrent.append((r2[2], r2[4]))
-			print(r2)
+			#print(r2)
+
 
 
 print('Assets : ',assets)
 print('AssetsCurrent : ',assets_current)
 print('Other :',other_assets_noncurrent)
 
-for i in assets:
+#plt.figure(figsize=[8,5], dpi=600)
+for i in assets_current:
 	plt.plot( int(i[0]), float(i[1]), 'or')
 
 plt.xlabel('Year')
 plt.xticks(rotation=-45)
 plt.ylabel('\$\$ USD \$\$')
-plt.title(COMPANY_SEARCH_TERM + ' Assets')
+plt.title(COMPANY_SEARCH_TERM + ' Current Assets')
 plt.show()
+
+
